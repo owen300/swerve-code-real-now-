@@ -110,10 +110,10 @@ public void runOpMode(){
             Lb.setTargetRotation(Math.toRadians(angle[2]));
             Rb.setTargetRotation(Math.toRadians(angle[3]));
             double[] power=S.calculatePower(gamepad1.left_stick_x,gamepad1.left_stick_y,gamepad1.right_stick_x,0);
-            Rf.setMotorPower(Math.toRadians(power[0]));
-            Lf.setMotorPower(Math.toRadians(power[1]));
-            Lb.setMotorPower(Math.toRadians(power[2]));
-            Rb.setMotorPower(Math.toRadians(power[3]));
+            Rf.setMotorPower(power[0]);
+            Lf.setMotorPower(power[1]);
+            Lb.setMotorPower(power[2]);
+            Rb.setMotorPower(power[3]);
             Rf.update();
             Rb.update();
             Lf.update();
