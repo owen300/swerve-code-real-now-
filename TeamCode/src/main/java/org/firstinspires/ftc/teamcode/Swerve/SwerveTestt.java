@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.Swerve;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -37,6 +38,8 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import java.util.List;
 
 
 
@@ -68,7 +71,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Basic: Omni Linear OpMode", group="Linear OpMode")
+@TeleOp(name="swerve test", group="Linear OpMode")
 
 public class SwerveTestt extends LinearOpMode {
     private SwerveKinmatics S=new SwerveKinmatics(14,14);
@@ -83,11 +86,16 @@ public class SwerveTestt extends LinearOpMode {
 
 
 public void runOpMode(){
+    List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+    for (LynxModule module : allHubs) {
+        module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);//bulk reads
+    }
+
     AbsoluteAnalogEncoder rfe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"rfe"));
     AbsoluteAnalogEncoder lfe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"lfe"));
     AbsoluteAnalogEncoder rbe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"rbe"));
     AbsoluteAnalogEncoder lbe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"lbe"));
-    rfm=hardwareMap.get(DcMotorEx.class,"rightFront");
+    rfm=hardwareMap.get(DcMotorEx.class,"rightFront");//hardware mappings
     rbm=hardwareMap.get(DcMotorEx.class,"rightRear");
     lbm=hardwareMap.get(DcMotorEx.class,"leftRear");
     lfm=hardwareMap.get(DcMotorEx.class,"leftFront");
@@ -95,7 +103,8 @@ public void runOpMode(){
     rb=hardwareMap.get(CRServo.class,"RBservo");
     lf=hardwareMap.get(CRServo.class,"LFservo");
     lb=hardwareMap.get(CRServo.class,"LBservo");
-    SwerveModule Rf=new SwerveModule(rfm,rf,rfe);
+
+    SwerveModule Rf=new SwerveModule(rfm,rf,rfe);//modules
     SwerveModule Rb=new SwerveModule(rbm,rb,rbe);
     SwerveModule Lf=new SwerveModule(lfm,lf,lfe);
     SwerveModule Lb=new SwerveModule(lbm,lb,lbe);
@@ -108,14 +117,15 @@ public void runOpMode(){
             Rf.setTargetRotation(angle[0]);
             Lf.setTargetRotation(angle[1]);
             Lb.setTargetRotation(angle[2]);
-            Rb.setTargetRotation(angle[3]);
+            Rb.setTargetRotation(angle[3]);//angles
+
             double[] power=S.calculatePower(gamepad1.left_stick_x,gamepad1.left_stick_y,gamepad1.right_stick_x,0);
             Rf.setMotorPower(power[0]);
             Lf.setMotorPower(power[1]);
-            Lb.setMotorPower(power[2]);
+            Lb.setMotorPower(power[2]);//wheel power
             Rb.setMotorPower(power[3]);
             Rf.update();
-            Rb.update();
+            Rb.update();//update modules
             Lf.update();
             Lb.update();
         }

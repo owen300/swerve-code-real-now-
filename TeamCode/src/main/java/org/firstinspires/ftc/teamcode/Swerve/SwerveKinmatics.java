@@ -32,7 +32,7 @@ public class SwerveKinmatics {
         b = this.x + this.rx*(L/R);
         c = this.y - this.rx*(W/R);
         d = this.y + this.rx*(W/R);
-        double[] angles={atan2(b,c)*180/Math.PI, atan2(b,d)*180/Math.PI, atan2(a,d)*180/Math.PI, atan2(a,c)*180/Math.PI};
+        double[] angles={atan2(b,c), atan2(b,d), atan2(a,d), atan2(a,c)};
         return angles;
     }
     public double[] calculatePower(double x,double y,double rx,double heading){
