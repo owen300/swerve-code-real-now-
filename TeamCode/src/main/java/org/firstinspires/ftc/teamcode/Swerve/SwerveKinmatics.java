@@ -26,7 +26,7 @@ public class SwerveKinmatics {
         this.y=-y;
         this.rx=rx;
         temp  =  this.y*cos(heading) + this.x*sin(heading);
-        this.x   = -this.y*sin(heading) + this.x*cos(heading);
+        this.x   = this.y*sin(heading) + this.x*cos(heading);
         this.y   =  temp;
         a = this.x - this.rx*(L/R);
         b = this.x + this.rx*(L/R);
