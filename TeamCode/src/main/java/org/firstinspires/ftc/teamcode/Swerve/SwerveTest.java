@@ -30,14 +30,11 @@
 package org.firstinspires.ftc.teamcode.Swerve;
 
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.List;
 
@@ -73,7 +70,7 @@ import java.util.List;
 
 @TeleOp(name="swerve test", group="Linear OpMode")
 
-public class SwerveTestt extends LinearOpMode {
+public class SwerveTest extends LinearOpMode {
     private SwerveKinmatics S=new SwerveKinmatics(14,14);
     DcMotorEx rfm;
     DcMotorEx lfm;
