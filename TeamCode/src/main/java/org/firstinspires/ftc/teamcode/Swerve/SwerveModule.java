@@ -4,7 +4,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.norm
 
 import com.acmerobotics.dashboard.config.Config;
 
-import com.acmerobotics.roadrunner.geometry.Vector2d;
+
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.util.Range;
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 
 import java.util.Locale;
 import java.util.function.DoubleSupplier;
@@ -175,12 +176,8 @@ public class SwerveModule {
             return this;
         }
 
-        //TODO add averaging for podrots based off of past values
-        public Vector2d calculateDelta() {
-            double oldWheel = wheelPos;
-            update();
-            return Vector2d.polar(wheelPos - oldWheel, podRot);
-        }
+
+
     }
 
     public double encoderTicksToInches(double ticks) {
