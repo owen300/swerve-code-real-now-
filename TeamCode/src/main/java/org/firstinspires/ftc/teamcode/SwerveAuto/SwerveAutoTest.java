@@ -27,16 +27,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.Swerve;
+package org.firstinspires.ftc.teamcode.SwerveAuto;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.CodeUtil.ArrayPrintToTelem;
+import org.firstinspires.ftc.teamcode.Swerve.AbsoluteAnalogEncoder;
+import org.firstinspires.ftc.teamcode.Swerve.SwerveKinmatics;
+import org.firstinspires.ftc.teamcode.Swerve.SwerveModule;
+import org.firstinspires.ftc.teamcode.SwerveAuto.Localizing.TwoDeadWheelLocalizer;
+import org.firstinspires.ftc.teamcode.SwerveAuto.PidToPoint.PidToPoint;
 
 import java.util.List;
 
@@ -72,8 +81,10 @@ import java.util.List;
 
 @TeleOp(name="swerve test", group="Linear OpMode")
 
-public class SwerveTest extends LinearOpMode {
+public class SwerveAutoTest extends LinearOpMode {
+    private PidToPoint follower=new PidToPoint(new Pose2d(0,0,0));
     private SwerveKinmatics S=new SwerveKinmatics(14,14);
+    private static IMU imu;
     DcMotorEx rfm;
     DcMotorEx lfm;
     DcMotorEx lbm;
@@ -89,7 +100,14 @@ public void runOpMode(){
     for (LynxModule module : allHubs) {
         module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);//bulk reads
     }
+    imu = hardwareMap.get(IMU.class, "imu");
 
+    IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+            RevHubOrientationOnRobot.LogoFacingDirection.UP,
+            RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
+    // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
+    imu.initialize(parameters);
+    TwoDeadWheelLocalizer localizer=new TwoDeadWheelLocalizer(hardwareMap,imu,0.00076660156);
     AbsoluteAnalogEncoder rfe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"rfe"));
     AbsoluteAnalogEncoder lfe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"lfe"));
     AbsoluteAnalogEncoder rbe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"rbe"));
@@ -112,23 +130,30 @@ public void runOpMode(){
 
 
         while (opModeIsActive()) {
-            double[] angle= S.calculateAngle(gamepad1.left_stick_x,gamepad1.left_stick_y,gamepad1.right_stick_x,0);
+            localizer.update();
+            follower.updatePose(localizer.perp.getPositionAndVelocity().position,localizer.par.getPositionAndVelocity().position,localizer.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+            follower.setTarget(new Pose2d(10,10,0));
+            telemetry.addData("current pose", follower.poseE.getPose().toString());
+            telemetry.addData("current pose", follower.target);
+            double[] xyh= follower.calculate();
+
+            double[] angle= S.calculateAngle(xyh[0],xyh[1], xyh[2],0);
             Rf.setTargetRotation(angle[0]);
             Lf.setTargetRotation(angle[1]);
             Lb.setTargetRotation(angle[2]);
             Rb.setTargetRotation(angle[3]);//angles
             ArrayPrintToTelem.arrayPrintToTelem("angles",angle,telemetry);
 
-            double[] power=S.calculatePower(gamepad1.left_stick_x,gamepad1.left_stick_y,gamepad1.right_stick_x,0);
+            double[] power=S.calculatePower(xyh[0],xyh[1], xyh[2],0);
             Rf.setMotorPower(power[0]);
             Lf.setMotorPower(power[1]);
             Lb.setMotorPower(power[2]);//wheel power
             Rb.setMotorPower(power[3]);
             ArrayPrintToTelem.arrayPrintToTelem("powers",power,telemetry);
-
             Rf.update();
             Rb.update();//update modules
             Lf.update();
             Lb.update();
+
         }
     }}

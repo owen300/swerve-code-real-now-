@@ -18,8 +18,10 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 import com.qualcomm.robotcore.util.Range;
 
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.Locale;
+import java.util.function.DoubleSupplier;
 
 @Config
 
@@ -39,12 +41,18 @@ public class SwerveModule {
     private CRServo servo;
     private AbsoluteAnalogEncoder encoder;
     private PIDFController rotationController;
-
+    double error = 0;
     public boolean wheelFlipped = false;
     private double target = 0.0;
     private double position = 0.0;
-
-    public SwerveModule(DcMotorEx m, CRServo s, AbsoluteAnalogEncoder e) {
+    private Telemetry telemetry =null;
+    void setki(){
+        rotationController.setI( Math.abs(error)> 0.174533 ? 0.2 : 0);
+        telemetry.addData("I value: ", Math.abs(error)> 0.174533 ? 0.2 : 0);
+        telemetry.update();
+    }
+    public SwerveModule(DcMotorEx m, CRServo s, AbsoluteAnalogEncoder e, Telemetry telemetry) {
+        this.telemetry=telemetry;
         motor = m;
         MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
         motorConfigurationType.setAchieveableMaxRPMFraction(MAX_MOTOR);
@@ -59,11 +67,11 @@ public class SwerveModule {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public SwerveModule(HardwareMap hardwareMap, String mName, String sName, String eName) {
-        this(hardwareMap.get(DcMotorEx.class, mName),
-                hardwareMap.get(CRServo.class, sName),
-                new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class, eName)));
-    }
+//    public SwerveModule(HardwareMap hardwareMap, String mName, String sName, String eName) {
+//        this(hardwareMap.get(DcMotorEx.class, mName),
+//                hardwareMap.get(CRServo.class, sName),
+//                new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class, eName)));
+//    }
 
     public void read() {
         position = encoder.getCurrentPosition();
@@ -73,7 +81,7 @@ public class SwerveModule {
         rotationController.setPIDF(P, I, D, 0);
         double target = getTargetRotation(), current = getModuleRotation();
 
-        double error = normalizeRadians(target - current);
+        error = normalizeRadians(target - current);
         if (MOTOR_FLIPPING && Math.abs(error) > Math.PI / 2) {
             target = normalizeRadians(target - Math.PI);
             wheelFlipped = true;
@@ -85,7 +93,9 @@ public class SwerveModule {
 
         double power = Range.clip(rotationController.calculate(0, error), -MAX_SERVO, MAX_SERVO);
         if (Double.isNaN(power)) power = 0;
-        servo.setPower(power + (Math.abs(error) > 0.02 ? K_STATIC : 0) * Math.signum(power));
+        setki();
+        servo.setPower(power /*+ (Math.abs(error) > 0.02 ? K_STATIC : 0) * Math.signum(power)*/);
+
     }
 
     public double getTargetRotation() {
