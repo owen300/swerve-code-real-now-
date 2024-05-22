@@ -1,18 +1,14 @@
 package org.firstinspires.ftc.teamcode.SwerveAuto.PidToPoint;
 
-import com.acmerobotics.roadrunner.Time;
-import com.acmerobotics.roadrunner.Twist2dDual;
+//import com.acmerobotics.roadrunner.Time;
+//import com.acmerobotics.roadrunner.Twist2dDual;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.controller.PIDFController;
-import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-import org.firstinspires.ftc.teamcode.SwerveAuto.Localizing.Localizer;
-import org.firstinspires.ftc.teamcode.SwerveAuto.Localizing.TwoDeadWheelLocalizer;
-import org.firstinspires.ftc.teamcode.SwerveAuto.PoseEsitmator;
-
 public class PidToPoint {
-    public PoseEsitmator poseE=null;
+    //public PoseEsitmator poseE=null;
+    public Pose2d current= null;
     public Pose2d target=null;
     private PIDFCoefficients xPidc = new PIDFCoefficients(0.1,0,0.1,0);
     private PIDFCoefficients yPidc = new PIDFCoefficients(0.1,0,0.1,0);
@@ -21,20 +17,19 @@ public class PidToPoint {
     private PIDController yPid= new PIDController(yPidc.p, yPidc.i, yPidc.d);
     private PIDController hPid= new PIDController(hPidc.p, hPidc.i, hPidc.d);
     public PidToPoint(Pose2d initPose){
-        poseE =new PoseEsitmator(initPose);
+        current=initPose;
     }
-    public void updatePose(double X, double Y, double heading){
-
-        poseE.updateFromOdo(X-poseE.getPose().position.x,Y-poseE.getPose().position.y,heading);
+    public void updatePose(Pose2d pose){
+        current=pose;
     }
     public void setTarget(Pose2d t){
         target=t;
     }
     public double[] calculate(){
         double[] powers= new double[3];
-        powers[0]= xPid.calculate(poseE.getPose().position.x,target.position.x);
-        powers[1]= yPid.calculate(poseE.getPose().position.y,target.position.y);
-        powers[2]= hPid.calculate(poseE.getPose().heading.toDouble(),target.heading.toDouble());
+        powers[0]= xPid.calculate(current.getX(),target.getX());
+        powers[1]= yPid.calculate(current.getY(),target.getY());
+        powers[2]= hPid.calculate(current.getHeading(),target.getHeading());
         return powers;
     }
     public boolean isAtTarget(){
