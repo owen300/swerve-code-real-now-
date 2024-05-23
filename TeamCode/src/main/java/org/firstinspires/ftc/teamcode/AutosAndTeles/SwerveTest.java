@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.Swerve;
+package org.firstinspires.ftc.teamcode.AutosAndTeles;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.command.CommandOpMode;
@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.CodeUtil.ArrayPrintToTelem;
 import org.firstinspires.ftc.teamcode.Commands.DriverControl;
+import org.firstinspires.ftc.teamcode.Swerve.SwerveSubsystem;
 import org.firstinspires.ftc.teamcode.SwerveAuto.Localizing.TwoWheelTrackingLocalizer;
 
 import java.util.List;
