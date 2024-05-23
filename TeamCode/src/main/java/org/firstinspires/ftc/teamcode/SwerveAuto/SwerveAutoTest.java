@@ -29,7 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.SwerveAuto;
 
-import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -44,7 +44,7 @@ import org.firstinspires.ftc.teamcode.CodeUtil.ArrayPrintToTelem;
 import org.firstinspires.ftc.teamcode.Swerve.AbsoluteAnalogEncoder;
 import org.firstinspires.ftc.teamcode.Swerve.SwerveKinmatics;
 import org.firstinspires.ftc.teamcode.Swerve.SwerveModule;
-import org.firstinspires.ftc.teamcode.SwerveAuto.Localizing.TwoDeadWheelLocalizer;
+import org.firstinspires.ftc.teamcode.SwerveAuto.Localizing.TwoWheelTrackingLocalizer;
 import org.firstinspires.ftc.teamcode.SwerveAuto.PidToPoint.PidToPoint;
 
 import java.util.List;
@@ -107,7 +107,7 @@ public void runOpMode(){
             RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
     // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
     imu.initialize(parameters);
-    TwoDeadWheelLocalizer localizer=new TwoDeadWheelLocalizer(hardwareMap,imu,0.00076660156);
+    TwoWheelTrackingLocalizer localizer=new TwoWheelTrackingLocalizer(hardwareMap);
     AbsoluteAnalogEncoder rfe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"rfe"));
     AbsoluteAnalogEncoder lfe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"lfe"));
     AbsoluteAnalogEncoder rbe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"rbe"));
@@ -125,16 +125,17 @@ public void runOpMode(){
     SwerveModule Rb=new SwerveModule(rbm,rb,rbe,telemetry);
     SwerveModule Lf=new SwerveModule(lfm,lf,lfe,telemetry);
     SwerveModule Lb=new SwerveModule(lbm,lb,lbe,telemetry);
+    localizer.setPoseEstimate(new Pose2d(0,0,0));
         waitForStart();
 
 
 
         while (opModeIsActive()) {
             localizer.update();
-            follower.updatePose(localizer.perp.getPositionAndVelocity().position,localizer.par.getPositionAndVelocity().position,localizer.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
             follower.setTarget(new Pose2d(10,10,0));
-            telemetry.addData("current pose", follower.poseE.getPose().toString());
-            telemetry.addData("current pose", follower.target);
+            telemetry.addData("current pose", follower.current.toString());
+            telemetry.addData("current target pose", follower.target);
+            follower.updatePose(localizer.getPoseEstimate());
             double[] xyh= follower.calculate();
 
             double[] angle= S.calculateAngle(xyh[0],xyh[1], xyh[2],0);

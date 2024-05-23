@@ -29,6 +29,9 @@
 
 package org.firstinspires.ftc.teamcode.Swerve;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.arcrobotics.ftclib.command.CommandOpMode;
+import com.arcrobotics.ftclib.command.RunCommand;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -37,6 +40,8 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.CodeUtil.ArrayPrintToTelem;
+import org.firstinspires.ftc.teamcode.Commands.DriverControl;
+import org.firstinspires.ftc.teamcode.SwerveAuto.Localizing.TwoWheelTrackingLocalizer;
 
 import java.util.List;
 
@@ -72,63 +77,14 @@ import java.util.List;
 
 @TeleOp(name="swerve test", group="Linear OpMode")
 
-public class SwerveTest extends LinearOpMode {
-    private SwerveKinmatics S=new SwerveKinmatics(14,14);
-    DcMotorEx rfm;
-    DcMotorEx lfm;
-    DcMotorEx lbm;
-    DcMotorEx rbm;
-    CRServo rf;
-    CRServo lf;
-    CRServo lb;
-    CRServo rb;
-
-
-public void runOpMode(){
-    List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
-    for (LynxModule module : allHubs) {
-        module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);//bulk reads
+public class SwerveTest extends CommandOpMode {
+    SwerveSubsystem swerve;
+    TwoWheelTrackingLocalizer localizer;
+    @Override
+    public void initialize(){
+        localizer=new TwoWheelTrackingLocalizer(hardwareMap);
+        localizer.setPoseEstimate(new Pose2d(0,0,0));
+        swerve=new SwerveSubsystem(hardwareMap,telemetry,localizer);
+        swerve.setDefaultCommand(new DriverControl(swerve,gamepad1));
     }
-
-    AbsoluteAnalogEncoder rfe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"rfe"));
-    AbsoluteAnalogEncoder lfe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"lfe"));
-    AbsoluteAnalogEncoder rbe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"rbe"));
-    AbsoluteAnalogEncoder lbe = new AbsoluteAnalogEncoder(hardwareMap.get(AnalogInput.class,"lbe"));
-    rfm=hardwareMap.get(DcMotorEx.class,"rightFront");//hardware mappings
-    rbm=hardwareMap.get(DcMotorEx.class,"rightRear");
-    lbm=hardwareMap.get(DcMotorEx.class,"leftRear");
-    lfm=hardwareMap.get(DcMotorEx.class,"leftFront");
-    rf=hardwareMap.get(CRServo.class,"RFservo");
-    rb=hardwareMap.get(CRServo.class,"RBservo");
-    lf=hardwareMap.get(CRServo.class,"LFservo");
-    lb=hardwareMap.get(CRServo.class,"LBservo");
-
-    SwerveModule Rf=new SwerveModule(rfm,rf,rfe,telemetry);//modules
-    SwerveModule Rb=new SwerveModule(rbm,rb,rbe,telemetry);
-    SwerveModule Lf=new SwerveModule(lfm,lf,lfe,telemetry);
-    SwerveModule Lb=new SwerveModule(lbm,lb,lbe,telemetry);
-        waitForStart();
-
-
-
-        while (opModeIsActive()) {
-            double[] angle= S.calculateAngle(gamepad1.left_stick_x,gamepad1.left_stick_y,gamepad1.right_stick_x,0);
-            Rf.setTargetRotation(angle[0]);
-            Lf.setTargetRotation(angle[1]);
-            Lb.setTargetRotation(angle[2]);
-            Rb.setTargetRotation(angle[3]);//angles
-            ArrayPrintToTelem.arrayPrintToTelem("angles",angle,telemetry);
-
-            double[] power=S.calculatePower(gamepad1.left_stick_x,gamepad1.left_stick_y,gamepad1.right_stick_x,0);
-            Rf.setMotorPower(power[0]);
-            Lf.setMotorPower(power[1]);
-            Lb.setMotorPower(power[2]);//wheel power
-            Rb.setMotorPower(power[3]);
-            ArrayPrintToTelem.arrayPrintToTelem("powers",power,telemetry);
-
-            Rf.update();
-            Rb.update();//update modules
-            Lf.update();
-            Lb.update();
-        }
-    }}
+}
