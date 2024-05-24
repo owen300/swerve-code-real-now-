@@ -16,6 +16,9 @@ public class PidToPoint {
     private PIDController hPid= new PIDController(hPidc.p, hPidc.i, hPidc.d);
     public PidToPoint(Pose2d initPose){
         current=initPose;
+        xPid.setTolerance(0.5);
+        yPid.setTolerance(0.5);
+        hPid.setTolerance(0.5);
     }
     public void updatePose(Pose2d pose){
         current=pose;
