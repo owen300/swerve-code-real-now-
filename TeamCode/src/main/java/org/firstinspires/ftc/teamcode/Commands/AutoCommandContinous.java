@@ -5,15 +5,15 @@ import com.arcrobotics.ftclib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.Swerve.SwerveSubsystem;
 import org.firstinspires.ftc.teamcode.SwerveAuto.Localizing.TwoWheelTrackingLocalizer;
-import org.firstinspires.ftc.teamcode.SwerveAuto.PidToPoint.PidToPoint;
+import org.firstinspires.ftc.teamcode.SwerveAuto.PidToPoint.PidToPointContinous;
 
-public class AutoCommand extends CommandBase {
-    private final PidToPoint p2p;
+public class AutoCommandContinous extends CommandBase {
+    private final PidToPointContinous p2p;
     private final TwoWheelTrackingLocalizer localizer;
     private final SwerveSubsystem swerve;
-    public AutoCommand(Pose2d pose, TwoWheelTrackingLocalizer localizer, SwerveSubsystem swerve){
+    public AutoCommandContinous(Pose2d pose, TwoWheelTrackingLocalizer localizer, SwerveSubsystem swerve){
         this.localizer=localizer;
-        this.p2p=new PidToPoint(localizer.getPoseEstimate());
+        this.p2p=new PidToPointContinous(localizer.getPoseEstimate());
         p2p.setTarget(pose);
         this.swerve=swerve;
     }

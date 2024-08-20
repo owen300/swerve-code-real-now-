@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.SwerveAuto.PidToPoint;
 
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-public class PidToPoint {
+public class PidToPointContinous {
     //public PoseEsitmator poseE=null;
     public Pose2d current= null;
     public Pose2d target=null;
@@ -14,11 +14,11 @@ public class PidToPoint {
     private PIDController xPid= new PIDController(xPidc.p, xPidc.i, xPidc.d);
     private PIDController yPid= new PIDController(yPidc.p, yPidc.i, yPidc.d);
     private PIDController hPid= new PIDController(hPidc.p, hPidc.i, hPidc.d);
-    public PidToPoint(Pose2d initPose){
+    public PidToPointContinous(Pose2d initPose){
         current=initPose;
-        xPid.setTolerance(0.25);
-        yPid.setTolerance(0.25);
-        hPid.setTolerance(0.25);
+        xPid.setTolerance(3);
+        yPid.setTolerance(3);
+        hPid.setTolerance(3);
     }
     public void updatePose(Pose2d pose){
         current=pose;
